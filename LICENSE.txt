@@ -1,7 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2026 Skyeyeiii (https://codepen.io/Susuiiwwju/pen/qENpPLK)
-Fork of an original work Untitled (https://codepen.io/Susuiiwwju/pen/WbxdZYr)
+Copyright (c) 2026 Skyeyeiii (https://codepen.io/Susuiiwwju/pen/pvEjjoy)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

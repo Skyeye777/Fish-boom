@@ -1,21 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Рыбки бум бум!!!!</title>
+  <title>Бум! Рыбка!</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- ============ CSS (СТИЛИ) ============ -->
   <style>
     * { box-sizing: border-box; }
     body {
@@ -29,12 +19,11 @@
 
     h1 {
       margin-top: 10px;
-      font-size: 28px;
+      font-size: 32px;
       color: #1b4332;
       text-shadow: 0 1px 2px rgba(0,0,0,0.15);
     }
 
-    /* Верхняя панель */
     #top-panel {
       background: rgba(255,255,255,0.6);
       padding: 10px;
@@ -76,7 +65,6 @@
       color: #1b4332;
     }
 
-    /* Игровые поля */
     #game {
       margin-top: 10px;
       display: none;
@@ -149,7 +137,6 @@
       to { transform: scale(1); opacity: 1; }
     }
 
-    /* Чат */
     #chat {
       width: 95%;
       max-width: 700px;
@@ -186,389 +173,604 @@
       color: #fff;
       width: 100%;
     }
+
+    #exitBtn {
+      margin-top: 10px;
+      background: #d00000;
+      color: #fff;
+      width: 100%;
+    }
+
+    #winner-banner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.1);
+      background: rgba(255,255,255,0.95);
+      padding: 25px 45px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      font-size: 28px;
+      color: #1b4332;
+      font-weight: bold;
+      display: none;
+      text-align: center;
+      white-space: pre-line;
+    }
   </style>
 </head>
 
 <body>
+  <h1>🌿 Бум! Рыбка!</h1>
 
-<h1>🌿 Fish Boom Online — Лесная версия</h1>
-
-<div id="top-panel">
-  Ник: <input id="nickInput" placeholder="Мой ник">
-  Комната: <input id="roomInput" placeholder="room123">
-  <br>
-  <button id="createRoomBtn">Создать</button>
-  <button id="joinRoomBtn">Войти</button>
-  <div id="status">Введи ник и комнату.</div>
-</div>
-
-<div id="game">
-  <div class="boards">
-    <div class="board-wrapper">
-      <div class="board-title">Твоё поле</div>
-      <div id="myBoard" class="board"></div>
-    </div>
-
-    <div class="board-wrapper">
-      <div class="board-title">Поле противника</div>
-      <div id="enemyBoard" class="board"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ЧАТ -->
-<div id="chat">
-  <div id="chat-log"></div>
-
-  <div id="chat-input-row">
-    <input id="chatInput" placeholder="Сообщение...">
-    <button id="sendChatBtn">Отправить</button>
+  <div id="top-panel">
+    Ник: <input id="nickInput" placeholder="Мой ник">
+    Комната: <input id="roomInput" placeholder="room123">
+    <br>
+    <button id="createRoomBtn">Создать</button>
+    <button id="joinRoomBtn">Войти</button>
+    <button id="exitBtn" style="display:none;">Выйти</button>
+    <div id="status">Введи ник и комнату.</div>
   </div>
 
-  <button id="restartBtn" style="display:none;">Начать заново</button>
-</div>
+  <div id="game">
+    <div class="boards">
+      <div class="board-wrapper">
+        <div class="board-title">Твоё поле</div>
+        <div id="myBoard" class="board"></div>
+      </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+      <div class="board-wrapper">
+        <div class="board-title">Поле противника</div>
+        <div id="enemyBoard" class="board"></div>
+      </div>
+    </div>
+  </div>
 
-<script>
-/* ------------------ FIREBASE ------------------ */
-const firebaseConfig = {
-  apiKey: "AIzaSyDvUVT46E2t0gKxdBdInXEriBjhZmhBCG8",
-  authDomain: "booooooom-2a58a.firebaseapp.com",
-  databaseURL: "https://booooooom-2a58a-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "booooooom-2a58a",
-  storageBucket: "booooooom-2a58a.appspot.com",
-  messagingSenderId: "230783528096",
-  appId: "1:230783528096:web:5e43fa74549f699f8b6dc5",
-  measurementId: "G-G4191PB4TJ"
-};
+  <div id="winner-banner"></div>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+  <div id="chat">
+    <div id="chat-log"></div>
+    <div id="chat-input-row">
+      <input id="chatInput" placeholder="Сообщение...">
+      <button id="sendChatBtn">Отправить</button>
+    </div>
+    <button id="restartBtn" style="display:none;">Начать заново</button>
+  </div>
 
-/* ------------------ CONSTANTS ------------------ */
-const FISH = "https://i.postimg.cc/KjbMP4xG/IMG-20260128-174245.jpg";
-const BOOM = "https://i.postimg.cc/t4n4gpGL/Bez-nazvania160-20260128173816.png";
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
-const SIZE = 5;
-const FISH_COUNT = 5;
+  <script>
+  /* ============================
+          FIREBASE
+  =============================== */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvUVT46E2t0gKxdBdInXEriBjhZmhBCG8",
+    authDomain: "booooooom-2a58a.firebaseapp.com",
+    databaseURL: "https://booooooom-2a58a-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "booooooom-2a58a",
+    storageBucket: "booooooom-2a58a.appspot.com",
+    messagingSenderId: "230783528096",
+    appId: "1:230783528096:web:5e43fa74549f699f8b6dc5",
+    measurementId: "G-G4191PB4TJ"
+  };
 
-/* ------------------ GAME STATE ------------------ */
-let roomId = null;
-let playerId = null;
-let nick = "";
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-let myFish = [];
-let enemyFish = [];
+  /* ============================
+          CONSTANTS
+  =============================== */
+  const SIZE = 5;
+  const FISH_COUNT = 5;
 
-let myHits = 0;
-let enemyHits = 0;
+  const FISH = "https://i.postimg.cc/KjbMP4xG/IMG-20260128-174245.jpg";
+  const BOOM = "https://i.postimg.cc/t4n4gpGL/Bez-nazvania160-20260128173816.png";
 
-let phase = "idle";
-let isMyTurn = false;
+  /* ============================
+          GAME STATE
+  =============================== */
+  let roomId = null;
+  let playerId = null;
+  let nick = "";
 
-/* ------------------ ELEMENTS ------------------ */
-const myBoardEl = document.getElementById("myBoard");
-const enemyBoardEl = document.getElementById("enemyBoard");
-const statusEl = document.getElementById("status");
-const chatLogEl = document.getElementById("chat-log");
-const restartBtn = document.getElementById("restartBtn");
+  let myFish = [];
+  let enemyFish = [];
 
-/* ------------------ UI HELPERS ------------------ */
-function setStatus(t) {
-  statusEl.innerHTML = t;
-}
+  let myHits = 0;
+  let enemyHits = 0;
 
-function addChatMessage(msg) {
-  const div = document.createElement("div");
+  let phase = "idle";
+  let isMyTurn = false;
 
-  if (msg.from === "system") {
-    div.className = "msg-system";
-    div.textContent = `[Система] ${msg.text}`;
-  } else if (msg.from === playerId) {
-    div.className = "msg-me";
-    div.textContent = `[${msg.nick}] ${msg.text}`;
-  } else {
-    div.className = "msg-enemy";
-    div.textContent = `[${msg.nick}] ${msg.text}`;
+  // ссылки на слушателей, чтобы не было дублей
+  let playersRef = null;
+  let turnRef = null;
+  let shotsRef = null;
+  let stateRef = null;
+  let chatRef = null;
+
+  /* ============================
+          ELEMENTS
+  =============================== */
+  const myBoardEl = document.getElementById("myBoard");
+  const enemyBoardEl = document.getElementById("enemyBoard");
+  const statusEl = document.getElementById("status");
+  const chatLogEl = document.getElementById("chat-log");
+  const restartBtn = document.getElementById("restartBtn");
+  const exitBtn = document.getElementById("exitBtn");
+  const winnerBanner = document.getElementById("winner-banner");
+
+  /* ============================
+          HELPERS
+  =============================== */
+  function setStatus(t) {
+    statusEl.innerHTML = t;
   }
 
-  chatLogEl.appendChild(div);
-  chatLogEl.scrollTop = chatLogEl.scrollHeight;
-}
-
-/* ------------------ BOARD CREATION ------------------ */
-function createBoards() {
-  myBoardEl.innerHTML = "";
-  enemyBoardEl.innerHTML = "";
-
-  for (let i = 0; i < SIZE * SIZE; i++) {
-    const c1 = document.createElement("div");
-    c1.className = "cell";
-    c1.dataset.i = i;
-    c1.onclick = placeFish;
-    myBoardEl.appendChild(c1);
-
-    const c2 = document.createElement("div");
-    c2.className = "cell disabled";
-    c2.dataset.i = i;
-    c2.onclick = shootEnemy;
-    enemyBoardEl.appendChild(c2);
-  }
-}
-
-/* ------------------ FISH PLACEMENT ------------------ */
-function placeFish(e) {
-  if (phase !== "placing") return;
-
-  const i = +e.target.dataset.i;
-  const cell = e.target;
-
-  if (myFish.includes(i)) {
-    myFish = myFish.filter(x => x !== i);
-    cell.innerHTML = "";
-  } else {
-    if (myFish.length >= FISH_COUNT) return;
-    myFish.push(i);
-    cell.innerHTML = `<img src="${FISH}">`;
+  function showWinnerBanner(text) {
+    winnerBanner.textContent = text;
+    winnerBanner.style.display = "block";
   }
 
-  db.ref(`rooms/${roomId}/players/${playerId}/fish`).set(myFish);
-}
+  function addChatMessage(msg) {
+    const div = document.createElement("div");
 
-/* ------------------ SHOOTING ------------------ */
-function shootEnemy(e) {
-  if (!isMyTurn || phase !== "battle") return;
-
-  const i = +e.target.dataset.i;
-  const cell = e.target;
-
-  if (cell.dataset.shot) return;
-  cell.dataset.shot = "1";
-
-  db.ref(`rooms/${roomId}/shots`).push({
-    from: playerId,
-    index: i,
-    ts: Date.now()
-  });
-
-  isMyTurn = false;
-  updateTurnStatus();
-}
-
-/* ------------------ TURN STATUS ------------------ */
-function updateTurnStatus() {
-  if (isMyTurn) {
-    setStatus(`Твой ход, ${nick}.`);
-    [...enemyBoardEl.children].forEach(c => c.classList.remove("disabled"));
-  } else {
-    setStatus("Ход противника...");
-    [...enemyBoardEl.children].forEach(c => c.classList.add("disabled"));
-  }
-}
-
-/* ------------------ HANDLE SHOTS ------------------ */
-function handleShot(shot) {
-  const enemyId = playerId === "p1" ? "p2" : "p1";
-
-  if (shot.from === playerId) {
-    const hit = enemyFish.includes(shot.index);
-    const cell = enemyBoardEl.children[shot.index];
-
-    if (hit) {
-      cell.innerHTML = `<img src="${BOOM}" class="boom">`;
-      myHits++;
-      if (myHits === FISH_COUNT) {
-        db.ref(`rooms/${roomId}/state/winner`).set(enemyId);
-      }
+    if (msg.from === "system") {
+      div.className = "msg-system";
+      div.textContent = `[Система] ${msg.text}`;
+    } else if (msg.from === playerId) {
+      div.className = "msg-me";
+      div.textContent = `[${msg.nick}] ${msg.text}`;
     } else {
-      cell.textContent = "•";
+      div.className = "msg-enemy";
+      div.textContent = `[${msg.nick}] ${msg.text}`;
     }
 
-    db.ref(`rooms/${roomId}/state/turn`).set(enemyId);
+    chatLogEl.appendChild(div);
+    chatLogEl.scrollTop = chatLogEl.scrollHeight;
+  }
 
-  } else {
-    const hit = myFish.includes(shot.index);
-    const cell = myBoardEl.children[shot.index];
+  /* ============================
+          BOARD CREATION
+  =============================== */
+  function createBoards() {
+    myBoardEl.innerHTML = "";
+    enemyBoardEl.innerHTML = "";
 
-    if (hit) {
-      cell.innerHTML = `<img src="${BOOM}" class="boom">`;
-      enemyHits++;
-      if (enemyHits === FISH_COUNT) {
-        db.ref(`rooms/${roomId}/state/winner`).set(playerId);
-      }
+    for (let i = 0; i < SIZE * SIZE; i++) {
+      const c1 = document.createElement("div");
+      c1.className = "cell";
+      c1.dataset.i = i;
+      c1.onclick = placeFish;
+      myBoardEl.appendChild(c1);
+
+      const c2 = document.createElement("div");
+      c2.className = "cell disabled";
+      c2.dataset.i = i;
+      c2.onclick = shootEnemy;
+      enemyBoardEl.appendChild(c2);
+    }
+  }
+
+  /* ============================
+          PLACE FISH
+  =============================== */
+  function placeFish(e) {
+    if (phase !== "placing") return;
+
+    const i = +e.target.dataset.i;
+    const cell = e.target;
+
+    if (myFish.includes(i)) {
+      myFish = myFish.filter(x => x !== i);
+      cell.innerHTML = "";
     } else {
-      cell.textContent = "•";
+      if (myFish.length >= FISH_COUNT) return;
+      myFish.push(i);
+      cell.innerHTML = `<img src="${FISH}">`;
     }
 
-    db.ref(`rooms/${roomId}/state/turn`).set(playerId);
-  }
-}
-
-/* ------------------ JOIN ROOM ------------------ */
-function joinRoom(create) {
-  nick = document.getElementById("nickInput").value.trim() || "Игрок";
-  roomId = document.getElementById("roomInput").value.trim();
-
-  if (!roomId) {
-    setStatus("Введите комнату.");
-    return;
+    db.ref(`rooms/${roomId}/players/${playerId}/fish`).set(myFish);
   }
 
-  createBoards();
-  document.getElementById("game").style.display = "flex";
+  /* ============================
+          SHOOT
+  =============================== */
+  function shootEnemy(e) {
+    if (!isMyTurn || phase !== "battle") return;
 
-  const ref = db.ref(`rooms/${roomId}`);
+    const i = +e.target.dataset.i;
+    const cell = e.target;
 
-  ref.once("value").then(snap => {
-    const data = snap.val();
+    if (cell.dataset.shot) return;
+    cell.dataset.shot = "1";
 
-    if (!data) {
-      if (!create) {
+    db.ref(`rooms/${roomId}/shots`).push({
+      from: playerId,
+      index: i,
+      ts: Date.now()
+    });
+
+    isMyTurn = false;
+    updateTurnStatus();
+  }
+
+  /* ============================
+          TURN STATUS
+  =============================== */
+  function updateTurnStatus() {
+    if (isMyTurn) {
+      setStatus(`Твой ход, ${nick}.`);
+      [...enemyBoardEl.children].forEach(c => c.classList.remove("disabled"));
+    } else {
+      setStatus("Ход противника...");
+      [...enemyBoardEl.children].forEach(c => c.classList.add("disabled"));
+    }
+  }
+
+  /* ============================
+          HANDLE SHOT
+  =============================== */
+  function handleShot(shot) {
+    const enemyId = playerId === "p1" ? "p2" : "p1";
+
+    if (shot.from === playerId) {
+      // Я стреляю по врагу
+      const hit = enemyFish.includes(shot.index);
+      const cell = enemyBoardEl.children[shot.index];
+
+      if (hit) {
+        cell.innerHTML = `<img src="${BOOM}" class="boom">`;
+        myHits++;
+
+        // рыбки = мины: если я открыл все рыбки врага — Я проиграл
+        if (myHits === FISH_COUNT) {
+          db.ref(`rooms/${roomId}/state`).update({
+            winner: enemyId,
+            reason: "exploded"
+          });
+          return;
+        }
+      } else {
+        cell.textContent = "•";
+      }
+
+      db.ref(`rooms/${roomId}/state/turn`).set(enemyId);
+      checkSafeVictory(playerId);
+
+    } else {
+      // Враг стреляет по мне
+      const hit = myFish.includes(shot.index);
+      const cell = myBoardEl.children[shot.index];
+
+      if (hit) {
+        cell.innerHTML = `<img src="${BOOM}" class="boom">`;
+        enemyHits++;
+
+        // рыбки = мины: если враг открыл все мои рыбки — он проиграл, я выигрываю
+        if (enemyHits === FISH_COUNT) {
+          db.ref(`rooms/${roomId}/state`).update({
+            winner: playerId,
+            reason: "exploded"
+          });
+          return;
+        }
+      } else {
+        cell.textContent = "•";
+      }
+
+      db.ref(`rooms/${roomId}/state/turn`).set(playerId);
+    }
+  }
+
+  /* ============================
+     SAFE VICTORY + DRAW LOGIC
+  =============================== */
+  function checkSafeVictory(who) {
+    if (phase !== "battle") return;
+
+    const enemyId = who === "p1" ? "p2" : "p1";
+
+    let safeCells = 0;
+    for (let i = 0; i < SIZE * SIZE; i++) {
+      if (!enemyFish.includes(i)) safeCells++;
+    }
+
+    const openedSafe = [...enemyBoardEl.children]
+      .filter((c, i) => c.dataset.shot && !enemyFish.includes(i)).length;
+
+    if (openedSafe !== safeCells) return;
+
+    const safeRef = db.ref(`rooms/${roomId}/state/safe`);
+
+    safeRef.once("value").then(snap => {
+      const safe = snap.val() || { p1: false, p2: false };
+      safe[who] = true;
+
+      safeRef.set(safe).then(() => {
+        db.ref(`rooms/${roomId}/state/winner`).once("value").then(wSnap => {
+          if (wSnap.exists()) return;
+
+          if (safe.p1 && safe.p2) {
+            db.ref(`rooms/${roomId}/state`).update({
+              winner: "draw",
+              reason: "draw"
+            });
+          } else {
+            db.ref(`rooms/${roomId}/state`).update({
+              winner: who,
+              reason: "safe"
+            });
+          }
+        });
+      });
+    });
+  }
+
+  /* ============================
+          LISTEN ROOM
+  =============================== */
+  function listenRoom() {
+    const baseRef = db.ref(`rooms/${roomId}`);
+
+    // снимаем старые слушатели, чтобы не было дублей
+    if (playersRef) playersRef.off();
+    if (turnRef) turnRef.off();
+    if (shotsRef) shotsRef.off();
+    if (stateRef) stateRef.off();
+    if (chatRef) chatRef.off();
+
+    playersRef = baseRef.child("players");
+    turnRef = baseRef.child("state/turn");
+    shotsRef = baseRef.child("shots");
+    stateRef = baseRef.child("state");
+    chatRef = baseRef.child("chat");
+
+    playersRef.on("value", snap => {
+      const p = snap.val() || {};
+      const me = p[playerId] || {};
+      const enemyId = playerId === "p1" ? "p2" : "p1";
+      const enemy = p[enemyId] || {};
+
+      myFish = me.fish || [];
+      enemyFish = enemy.fish || [];
+
+      if (myFish.length === FISH_COUNT && enemyFish.length === FISH_COUNT) {
+        if (phase !== "battle") {
+          phase = "battle";
+          setStatus("Бой начался!");
+        }
+      }
+    });
+
+    turnRef.on("value", snap => {
+      if (!snap.exists()) return;
+      isMyTurn = snap.val() === playerId;
+      if (phase === "battle") updateTurnStatus();
+    });
+
+    shotsRef.on("child_added", snap => {
+      handleShot(snap.val());
+    });
+
+    stateRef.on("value", snap => {
+      const state = snap.val() || {};
+      if (!state.winner) return;
+
+      phase = "ended";
+
+      const winner = state.winner;
+      const reason = state.reason;
+
+      if (winner === "draw") {
+        showWinnerBanner(`🐟 Безопасных клеток не осталось\n🤝 Ничья`);
+        setStatus("Ничья.");
+        restartBtn.style.display = "block";
+        return;
+      }
+
+      db.ref(`rooms/${roomId}/players/${winner}/nick`).once("value").then(nickSnap => {
+        const winnerNick = nickSnap.val() || "Игрок";
+
+        if (reason === "safe") {
+          showWinnerBanner(`🐟 Безопасных клеток не осталось\n🎉 Победил: ${winnerNick} 🎉`);
+          setStatus(`Победил по безопасным клеткам: ${winnerNick}`);
+        } else if (reason === "exploded") {
+          showWinnerBanner(`💥 Взрыв на всех рыбках!\n🎉 Победил: ${winnerNick} 🎉`);
+          setStatus(`Победил: ${winnerNick} (противник взорвался на всех рыбках)`);
+        } else {
+          showWinnerBanner(`🎉 Победил: ${winnerNick} 🎉`);
+          setStatus(`Победил: ${winnerNick}`);
+        }
+
+        restartBtn.style.display = "block";
+      });
+    });
+
+    chatRef.on("child_added", snap => {
+      addChatMessage(snap.val());
+    });
+  }
+
+  /* ============================
+          CHAT
+  =============================== */
+  function sendChat() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text || !roomId || !playerId) return;
+
+    db.ref(`rooms/${roomId}/chat`).push({
+      from: playerId,
+      nick,
+      text,
+      ts: Date.now()
+    });
+
+    input.value = "";
+  }
+
+  function sendSystemMessage(text) {
+    if (!roomId) return;
+    db.ref(`rooms/${roomId}/chat`).push({
+      from: "system",
+      text,
+      ts: Date.now()
+    });
+  }
+
+  /* ============================
+          JOIN ROOM
+  =============================== */
+  function joinRoom(create) {
+    // отключаем старые слушатели, чтобы не было дублей
+    if (roomId) {
+      if (playersRef) playersRef.off();
+      if (turnRef) turnRef.off();
+      if (shotsRef) shotsRef.off();
+      if (stateRef) stateRef.off();
+      if (chatRef) chatRef.off();
+      db.ref(`rooms/${roomId}`).off();
+    }
+
+    nick = document.getElementById("nickInput").value.trim() || "Игрок";
+    roomId = document.getElementById("roomInput").value.trim();
+
+    if (!roomId) {
+      setStatus("Введите комнату.");
+      return;
+    }
+
+    const ref = db.ref(`rooms/${roomId}`);
+
+    ref.once("value").then(snap => {
+      const data = snap.val();
+
+      // Комната не существует и мы НЕ создаём
+      if (!data && !create) {
         setStatus("Комната не существует.");
         return;
       }
 
-      playerId = "p1";
-      ref.set({
-        players: { p1: { nick, fish: [] } },
-        state: { turn: "p1" }
-      });
+      // показываем поля
+      createBoards();
+      document.getElementById("game").style.display = "flex";
+      exitBtn.style.display = "inline-block";
 
-      setStatus(`Ты — ${nick} (Игрок 1). Расставь рыбок.`);
-    } else {
-      const p = data.players || {};
-
-      if (!p.p1) {
+      if (!data) {
+        // создаём новую комнату
         playerId = "p1";
-        ref.child("players/p1").set({ nick, fish: [] });
+        ref.set({
+          players: { p1: { nick, fish: [] } },
+          state: { turn: "p1", safe: { p1: false, p2: false } }
+        });
         setStatus(`Ты — ${nick} (Игрок 1). Расставь рыбок.`);
-      } else if (!p.p2) {
-        playerId = "p2";
-        ref.child("players/p2").set({ nick, fish: [] });
-        setStatus(`Ты — ${nick} (Игрок 2). Расставь рыбок.`);
       } else {
-        setStatus("Комната занята.");
-        return;
+        const p = data.players || {};
+
+        if (!p.p1) {
+          playerId = "p1";
+          ref.child("players/p1").set({ nick, fish: [] });
+          setStatus(`Ты — ${nick} (Игрок 1). Расставь рыбок.`);
+        } else if (!p.p2) {
+          playerId = "p2";
+          ref.child("players/p2").set({ nick, fish: [] });
+          setStatus(`Ты — ${nick} (Игрок 2). Расставь рыбок.`);
+        } else {
+          setStatus("Комната занята.");
+          return;
+        }
       }
-    }
+
+      phase = "placing";
+      listenRoom();
+      sendSystemMessage(`${nick} вошёл в комнату.`);
+    });
+  }
+
+  /* ============================
+          EXIT ROOM
+  =============================== */
+  function exitRoom() {
+    if (!roomId || !playerId) return;
+
+    // отключаем слушатели
+    if (playersRef) playersRef.off();
+    if (turnRef) turnRef.off();
+    if (shotsRef) shotsRef.off();
+    if (stateRef) stateRef.off();
+    if (chatRef) chatRef.off();
+    db.ref(`rooms/${roomId}`).off();
+
+    playersRef = turnRef = shotsRef = stateRef = chatRef = null;
+
+    const roomPath = `rooms/${roomId}`;
+    const myRef = db.ref(`${roomPath}/players/${playerId}`);
+
+    myRef.remove().then(() => {
+      db.ref(`${roomPath}/players`).once("value").then(snap => {
+        const players = snap.val();
+        if (!players || Object.keys(players).length === 0) {
+          db.ref(roomPath).remove();
+        }
+      });
+    });
+
+    roomId = null;
+    playerId = null;
+    phase = "idle";
+
+    document.getElementById("game").style.display = "none";
+    exitBtn.style.display = "none";
+    restartBtn.style.display = "none";
+    winnerBanner.style.display = "none";
+    chatLogEl.innerHTML = "";
+
+    setStatus("Вы вышли из комнаты.");
+  }
+
+  /* ============================
+          RESTART GAME
+  =============================== */
+  function restartGame() {
+    if (!roomId || !playerId) return;
+
+    db.ref(`rooms/${roomId}/shots`).remove();
+    db.ref(`rooms/${roomId}/state`).set({
+      turn: "p1",
+      winner: null,
+      reason: null,
+      safe: { p1: false, p2: false }
+    });
+
+    db.ref(`rooms/${roomId}/players/${playerId}/fish`).set([]);
+
+    myFish = [];
+    enemyFish = [];
+    myHits = 0;
+    enemyHits = 0;
 
     phase = "placing";
-    listenRoom();
-    sendSystemMessage(`${nick} вошёл в комнату.`);
-  });
-}
+    isMyTurn = false;
 
-/* ------------------ LISTEN ROOM ------------------ */
-function listenRoom() {
-  db.ref(`rooms/${roomId}/players`).on("value", snap => {
-    const p = snap.val() || {};
-    const me = p[playerId] || {};
-    const enemyId = playerId === "p1" ? "p2" : "p1";
-    const enemy = p[enemyId] || {};
+    createBoards();
+    setStatus("Игра перезапущена. Расставьте рыбок.");
+    restartBtn.style.display = "none";
+    winnerBanner.style.display = "none";
+  }
 
-    myFish = me.fish || [];
-    enemyFish = enemy.fish || [];
-
-    if (myFish.length === FISH_COUNT && enemyFish.length === FISH_COUNT) {
-      if (phase !== "battle") {
-        phase = "battle";
-        setStatus("Бой начался!");
-      }
-    }
-  });
-
-  db.ref(`rooms/${roomId}/state/turn`).on("value", snap => {
-    if (!snap.exists()) return;
-    isMyTurn = snap.val() === playerId;
-    if (phase === "battle") updateTurnStatus();
-  });
-
-  db.ref(`rooms/${roomId}/shots`).on("child_added", snap => {
-    handleShot(snap.val());
-  });
-
-  db.ref(`rooms/${roomId}/state/winner`).on("value", snap => {
-    if (!snap.exists()) return;
-
-    phase = "ended";
-    const winner = snap.val();
-
-    if (winner === playerId) {
-      setStatus(`Ты выиграл, ${nick}!`);
-    } else {
-      setStatus("Ты проиграл...");
-    }
-
-    restartBtn.style.display = "block";
-  });
-
-  db.ref(`rooms/${roomId}/chat`).on("child_added", snap => {
-    addChatMessage(snap.val());
-  });
-}
-
-/* ------------------ CHAT ------------------ */
-function sendChat() {
-  const input = document.getElementById("chatInput");
-  const text = input.value.trim();
-  if (!text) return;
-
-  db.ref(`rooms/${roomId}/chat`).push({
-    from: playerId,
-    nick,
-    text,
-    ts: Date.now()
-  });
-
-  input.value = "";
-}
-
-function sendSystemMessage(text) {
-  db.ref(`rooms/${roomId}/chat`).push({
-    from: "system",
-    text,
-    ts: Date.now()
-  });
-}
-
-/* ------------------ RESTART ------------------ */
-function restartGame() {
-  db.ref(`rooms/${roomId}`).set({
-    players: {
-      p1: { nick: "Игрок 1", fish: [] },
-      p2: { nick: "Игрок 2", fish: [] }
-    },
-    state: { turn: "p1" }
-  });
-
-  myFish = [];
-  enemyFish = [];
-  myHits = 0;
-  enemyHits = 0;
-  phase = "placing";
-  isMyTurn = false;
-
-  createBoards();
-  setStatus("Игра перезапущена. Расставьте рыбок.");
-  restartBtn.style.display = "none";
-}
-
-/* ------------------ BUTTONS ------------------ */
-document.getElementById("createRoomBtn").onclick = () => joinRoom(true);
-document.getElementById("joinRoomBtn").onclick = () => joinRoom(false);
-document.getElementById("sendChatBtn").onclick = sendChat;
-document.getElementById("chatInput").onkeydown = e => { if (e.key === "Enter") sendChat(); };
-restartBtn.onclick = restartGame;
-
-</script>
-
+  /* ============================
+          BUTTONS
+  =============================== */
+  document.getElementById("createRoomBtn").onclick = () => joinRoom(true);
+  document.getElementById("joinRoomBtn").onclick = () => joinRoom(false);
+  document.getElementById("sendChatBtn").onclick = sendChat;
+  document.getElementById("chatInput").onkeydown = e => { if (e.key === "Enter") sendChat(); };
+  restartBtn.onclick = restartGame;
+  exitBtn.onclick = exitRoom;
+  </script>
 </body>
-</html>
-    <script src='https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js'></script>
-<script src='https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js'></script>
-  </body>
-  
 </html>
